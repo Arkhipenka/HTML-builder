@@ -1,8 +1,30 @@
 const path = require('path');
 const fs = require('fs');
 
-const stream = fs.createReadStream(path.join(__dirname, 'text.txt'));
+const readline = require('readline');
+const { stdin: input, stdout: output } = require('process');
 
-stream.on('data', (data) => {
-  console.log(data.toString());
+const file = fs.createWriteStream(path.join(__dirname, 'text.txt'));
+const rl = readline.createInterface({ input, output });
+
+process.on('exit', () => {
+  console.log('Прогa прекращает работу');
 });
+
+process.on('SIGNINT', () => {
+  process.exit(0);
+});
+
+console.log('Введите текст для записи:');
+const recursiveReadLine = () => {
+  rl.question('', (answer) => {
+    if (answer === 'exit') {
+      return rl.close();
+    }
+
+    file.write(`${answer}\n`);
+    recursiveReadLine();
+  });
+};
+
+recursiveReadLine();
